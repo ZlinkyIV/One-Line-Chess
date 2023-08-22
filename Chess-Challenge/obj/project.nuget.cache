@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "TYzBLV81lGajT6io/bmJOfKW/6PO9pOLu5VeKmiESATviAn9ITKP9VjeOZ+b6hBkWMx5iDiY2ULN7kcF/dq1fA==",
+  "success": true,
+  "projectFilePath": "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One Line Chess/Chess-Challenge/Chess-Challenge.csproj",
+  "expectedPackageFiles": [
+    "/Users/kaydon/.nuget/packages/raylib-cs/4.5.0.2/raylib-cs.4.5.0.2.nupkg.sha512",
+    "/Users/kaydon/.nuget/packages/system.numerics.vectors/4.5.0/system.numerics.vectors.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}
