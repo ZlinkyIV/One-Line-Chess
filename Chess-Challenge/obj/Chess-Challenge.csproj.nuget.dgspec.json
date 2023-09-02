@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One Line Chess/Chess-Challenge/Chess-Challenge.csproj": {}
+    "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/Chess-Challenge.csproj": {}
   },
   "projects": {
-    "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One Line Chess/Chess-Challenge/Chess-Challenge.csproj": {
+    "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/Chess-Challenge.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One Line Chess/Chess-Challenge/Chess-Challenge.csproj",
+        "projectUniqueName": "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/Chess-Challenge.csproj",
         "projectName": "Chess-Challenge",
-        "projectPath": "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One Line Chess/Chess-Challenge/Chess-Challenge.csproj",
+        "projectPath": "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/Chess-Challenge.csproj",
         "packagesPath": "/Users/kaydon/.nuget/packages/",
-        "outputPath": "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One Line Chess/Chess-Challenge/obj/",
+        "outputPath": "/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/kaydon/.nuget/NuGet/NuGet.Config"

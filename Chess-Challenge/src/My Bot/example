@@ -1,0 +1,37 @@
+int Maxi(Board board, int depth) =>
+    depth == 0
+        ? Evaluate()
+        : board.GetLegalMoves()
+            .Select(move => board.MakeMove(move, board => Mini(board, depth - 1)))
+            .Max();
+
+int Mini(Board board, int depth) =>
+    depth == 0
+        ? Evaluate()
+        : board.GetLegalMoves()
+            .Select(move => board.MakeMove(move, board => Maxi(board, depth - 1)))
+            .Min();
+
+int NegaMax(Board board, int depth) =>
+    depth == 0
+        ? Evaluate(board)
+        : board.GetLegalMoves()
+            .Select(move => board.MakeMove(move, board => NegaMax(board, depth - 1)))
+            .Max();
+
+
+int AlphaBeta(Board board, int depth, int myBestMove = int.MinValue + 1, int opponentBestMove int.MaxValue)
+{
+    if (depth == 0) return Evaluate(board);
+    
+    foreach (var move in board.GetLegalMoves())
+    {
+        int score = board.MakeMove(move, board => -AlphaBeta(board, depth - 1, -opponentBestMove, -myBestMove));
+        
+        if (score >= oppenentBestMove)
+            return opponentBestMove;
+        if (score > myBestMove)
+            myBestMove = score;
+    }
+    return myBestMove;
+}
