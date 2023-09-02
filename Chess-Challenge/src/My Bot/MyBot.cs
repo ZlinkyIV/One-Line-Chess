@@ -11,7 +11,7 @@ public class MyBot : IChessBot
     {
         Move move = board.GetLegalMoves()
             .OrderByDescending(
-                move => board.MakeMove(move, board => -NegaMax(board, 3))
+                move => board.MakeMove(move, board => -AlphaBeta(board, 3))
             )
             .FirstOrDefault();
 
@@ -22,18 +22,7 @@ public class MyBot : IChessBot
         return move;
     }
 
-    int NegaMax(Board board, int depth) =>
-        board.GetLegalMoves().Length == 0
-            ? board.IsInCheckmate()
-                ? -1000000
-                : 0
-            : depth == 0
-                ? Evaluate(board)
-                : board.GetLegalMoves()
-                    .Select(move => board.MakeMove(move, board => -NegaMax(board, depth - 1)))
-                    .Max();
-
-    // int AlphaBeta(Board board, int depth, int alpha = int.MinValue + 1, int beta = int.MaxValue) =>
+    // int NegaMax(Board board, int depth) =>
     //     board.GetLegalMoves().Length == 0
     //         ? board.IsInCheckmate()
     //             ? -1000000
@@ -41,14 +30,25 @@ public class MyBot : IChessBot
     //         : depth == 0
     //             ? Evaluate(board)
     //             : board.GetLegalMoves()
-    //                 .Aggregate(alpha, (alpha, move) =>
-    //                     alpha >= beta
-    //                         ? beta
-    //                         : Math.Max(
-    //                             alpha,
-    //                             board.MakeMove(move, board => -AlphaBeta(board, depth - 1, -beta, -alpha))
-    //                         )
-    //                 );
+    //                 .Select(move => board.MakeMove(move, board => -NegaMax(board, depth - 1)))
+    //                 .Max();
+
+    int AlphaBeta(Board board, int depth, int alpha = int.MinValue + 1, int beta = int.MaxValue) =>
+        board.GetLegalMoves().Length == 0
+            ? board.IsInCheckmate()
+                ? -1000000
+                : 0
+            : depth == 0
+                ? Evaluate(board)
+                : board.GetLegalMoves()
+                    .Aggregate(alpha, (alpha, move) =>
+                        alpha >= beta
+                            ? beta
+                            : Math.Max(
+                                alpha,
+                                board.MakeMove(move, board => -AlphaBeta(board, depth - 1, -beta, -alpha))
+                            )
+                    );
 
     int Evaluate(Board board)
     {
