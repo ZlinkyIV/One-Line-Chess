@@ -22,17 +22,6 @@ public class MyBot : IChessBot
         return move;
     }
 
-    // int NegaMax(Board board, int depth) =>
-    //     board.GetLegalMoves().Length == 0
-    //         ? board.IsInCheckmate()
-    //             ? -1000000
-    //             : 0
-    //         : depth == 0
-    //             ? Evaluate(board)
-    //             : board.GetLegalMoves()
-    //                 .Select(move => board.MakeMove(move, board => -NegaMax(board, depth - 1)))
-    //                 .Max();
-
     int AlphaBeta(Board board, int depth, int alpha = int.MinValue + 1, int beta = int.MaxValue) =>
         board.GetLegalMoves().Length == 0
             ? board.IsInCheckmate()
@@ -41,6 +30,11 @@ public class MyBot : IChessBot
             : depth == 0
                 ? Evaluate(board)
                 : board.GetLegalMoves()
+                    .OrderByDescending(move =>
+                        - Convert.ToInt32(board.SquareIsAttackedByOpponent(move.TargetSquare))
+                        + (move.CapturePieceType - move.MovePieceType)
+                        + move.PromotionPieceType
+                    )
                     .Aggregate(alpha, (alpha, move) =>
                         alpha >= beta
                             ? beta
@@ -60,7 +54,7 @@ public class MyBot : IChessBot
                 * pieceList.Count
                 * (pieceList.IsWhitePieceList ? 1 : -1)
             )
-        * (board.IsWhiteToMove ? 1 : -1);
+            * (board.IsWhiteToMove ? 1 : -1);
     }
 }
 
