@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ChessChallenge.API;
 
@@ -13,56 +14,67 @@ public class MyBot : IChessBot
             .Aggregate((
                     move: Move.NullMove,
                     score: 0,
-                    depth: 0
+                    depth: 0,
+                    transpositionTable: Enumerable.Empty<(ulong, int, int)>(),
+                    previousEvaluationMove: Move.NullMove
                 ),
-                (lastDepthMoveScore, depth) => 
+                (previousEvaluation, depth) => 
                     timer.MillisecondsElapsedThisTurn > 1000
-                    ? lastDepthMoveScore
+                    ? previousEvaluation
                     : board.GetLegalMoves()
                         .Select(move => (
                             move: move, 
-                            // score: board.MakeMove(move, board => -AlphaBeta(board, depth, () => false)),
-                            score: board.MakeMove(move, board => -AlphaBeta(board, depth, () => timer.MillisecondsElapsedThisTurn > 1000)),
-                            depth: depth
+                            // score_tt: board.MakeMove(move, board => AlphaBeta(board, lastDepthMoveScore.transpositionTable, depth, () => false))
+                            score_tt: board.MakeMove(move, board => AlphaBeta(board, previousEvaluation.transpositionTable, depth, () => timer.MillisecondsElapsedThisTurn > 1000))
+                        ))
+                        .Select(evaluation => (
+                            evaluation.move,
+                            score: -evaluation.score_tt.score,
+                            depth,
+                            evaluation.score_tt.transpositionTable,
+                            previousEvaluationMove: previousEvaluation.move
                         ))
                         .MaxBy(moveScore => moveScore.score)
             );
-
-        // var moveScore = board.GetLegalMoves()
-        //     .Select(move => (
-        //         move: move, 
-        //         score: board.MakeMove(move, board => -AlphaBeta(board, 3, () => false))
-        //     ))
-        //     .MaxBy(moveScore => moveScore.score);
 
         movesMade += 1;
 
         Console.WriteLine($"Moves: {board.PlyCount} \t Score: {evaluation.score} \t Average Moves: {totalMovesSearched / movesMade} \t Time Elapsed: {timer.MillisecondsElapsedThisTurn} \t Depth: {evaluation.depth}");
         
-        return evaluation.move;
+        return evaluation.previousEvaluationMove;
     }
 
-    int AlphaBeta(Board board, int depth, Func<bool> shouldCancel, int alpha = int.MinValue + 1, int beta = int.MaxValue) =>
+    (int score, IEnumerable<(ulong, int, int)> transpositionTable) AlphaBeta(Board board, IEnumerable<(ulong, int, int)> transpositionTable, int depth, Func<bool> shouldCancel, int alpha = int.MinValue + 1, int beta = int.MaxValue) =>
         board.GetLegalMoves().Length == 0
-            ? board.IsInCheckmate()
-                ? -1000000
-                : 0
-            // : shouldCancel() || depth == 0
-            : depth == 0
-                ? Evaluate(board)
+            ? (board.IsInCheckmate() ? -1000000 : 0, Enumerable.Empty<(ulong, int, int)>())
+            : depth == 0 || shouldCancel()
+            // : depth == 0
+                ? (Evaluate(board), Enumerable.Empty<(ulong, int, int)>())
                 : board.GetLegalMoves(depth <= 0 || shouldCancel())
                     .OrderByDescending(move =>
-                        - Convert.ToInt32(board.SquareIsAttackedByOpponent(move.TargetSquare))
-                        + (move.CapturePieceType - move.MovePieceType)
-                        + move.PromotionPieceType
+                        + transpositionTable.Aggregate((0ul, 0, 0), (maybeTheLineWeWant, currentLine) => currentLine.Item1 == board.ZobristKey ? currentLine : maybeTheLineWeWant).Item3
+                        - 100 * Convert.ToInt32(board.SquareIsAttackedByOpponent(move.TargetSquare))
+                        + 100 * (move.CapturePieceType - move.MovePieceType)
+                        + 100 * (int)move.PromotionPieceType
                     )
-                    .Aggregate(alpha, (alpha, move) =>
-                        alpha >= beta
-                            ? beta
-                            : Math.Max(
-                                alpha,
-                                board.MakeMove(move, board => -AlphaBeta(board, depth - 1, shouldCancel, -beta, -alpha))
-                            )
+                    .Aggregate(
+                        (score: alpha, transpositionTable: Enumerable.Empty<(ulong, int, int)>()),
+                        (alpha_tt, move) =>
+                            alpha_tt.score >= beta
+                                ? (beta, alpha_tt.transpositionTable)
+                                : new[] {
+                                    alpha_tt,
+                                    new (int score, IEnumerable<(ulong, int, int)> transpositionTable)[] {
+                                        board.MakeMove(move, board => AlphaBeta(board, transpositionTable, depth - 1, shouldCancel, -beta, -alpha))
+                                    }
+                                        .Select(score_tt => (
+                                            score: -score_tt.score,
+                                            transpositionTable: score_tt.transpositionTable.Append((board.ZobristKey, depth, score_tt.score))
+                                        ))
+                                        .First()
+                                }
+                                    .MaxBy(score_tt => score_tt.score)
+                                
                     );
 
     int Evaluate(Board board)

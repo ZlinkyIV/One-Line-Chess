@@ -31,7 +31,6 @@
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/resources/Fens.txt
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/resources/Pieces.png
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/Chess-Challenge
-/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/src/Evil Bot/EvilBot.cs
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/src/My Bot/MyBot.cs
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/resources/Fonts/OPENSANS-SEMIBOLD.TTF
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/resources/Fonts/sdf.fs
