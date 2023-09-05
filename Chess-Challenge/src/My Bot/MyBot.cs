@@ -5,9 +5,6 @@ using ChessChallenge.API;
 
 public class MyBot : IChessBot
 {
-    int totalMovesSearched = 0;
-    int movesMade = 0;
-
     public Move Think(Board board, Timer timer)
     {
         var evaluation = Enumerable.Range(1, 100)
@@ -19,38 +16,58 @@ public class MyBot : IChessBot
                     previousEvaluationMove: Move.NullMove
                 ),
                 (previousEvaluation, depth) => 
-                    timer.MillisecondsElapsedThisTurn > 1000
-                    ? previousEvaluation
-                    : board.GetLegalMoves()
-                        .Select(move => (
-                            move: move, 
-                            // score_tt: board.MakeMove(move, board => AlphaBeta(board, lastDepthMoveScore.transpositionTable, depth, () => false))
-                            score_tt: board.MakeMove(move, board => AlphaBeta(board, previousEvaluation.transpositionTable, depth, () => timer.MillisecondsElapsedThisTurn > 1000))
-                        ))
-                        .Select(evaluation => (
-                            evaluation.move,
-                            score: -evaluation.score_tt.score,
-                            depth,
-                            evaluation.score_tt.transpositionTable,
-                            previousEvaluationMove: previousEvaluation.move
-                        ))
-                        .MaxBy(moveScore => moveScore.score)
+                    timer.MillisecondsElapsedThisTurn > 2000
+                        ? previousEvaluation
+                        : board.GetLegalMoves()
+                            .Select(move => (
+                                    move: move, 
+                                    // score_tt: board.MakeMove(move, board => AlphaBeta(board, lastDepthMoveScore.transpositionTable, depth, () => false))
+                                    score_tt: board.MakeMove(move, board => AlphaBeta(board, previousEvaluation.transpositionTable, depth, () => timer.MillisecondsElapsedThisTurn > 2000))
+                                ))
+                            .Select(evaluation => (
+                                evaluation.move,
+                                score: -evaluation.score_tt.score,
+                                depth,
+                                evaluation.score_tt.transpositionTable,
+                                previousEvaluationMove: previousEvaluation.move
+                            ))
+                            .MaxBy(moveScore => moveScore.score)
             );
 
-        movesMade += 1;
-
-        Console.WriteLine($"Moves: {board.PlyCount} \t Score: {evaluation.score} \t Average Moves: {totalMovesSearched / movesMade} \t Time Elapsed: {timer.MillisecondsElapsedThisTurn} \t Depth: {evaluation.depth}");
+        Console.WriteLine($"Moves: {board.PlyCount} \t Score: {evaluation.score} \t Time Elapsed: {timer.MillisecondsElapsedThisTurn} \t Depth: {evaluation.depth}");
         
-        return evaluation.previousEvaluationMove;
+        return evaluation.previousEvaluationMove != Move.NullMove
+            ? evaluation.previousEvaluationMove
+            : evaluation.move;
     }
 
     (int score, IEnumerable<(ulong, int, int)> transpositionTable) AlphaBeta(Board board, IEnumerable<(ulong, int, int)> transpositionTable, int depth, Func<bool> shouldCancel, int alpha = int.MinValue + 1, int beta = int.MaxValue) =>
         board.GetLegalMoves().Length == 0
             ? (board.IsInCheckmate() ? -1000000 : 0, Enumerable.Empty<(ulong, int, int)>())
-            : depth == 0 || shouldCancel()
-            // : depth == 0
-                ? (Evaluate(board), Enumerable.Empty<(ulong, int, int)>())
-                : board.GetLegalMoves(depth <= 0 || shouldCancel())
+            : shouldCancel() || depth == 0
+                ? (
+                    (board.GetAllPieceLists()
+                        .Sum(pieceList =>
+                            new[] { 0, 100, 320, 330, 500, 900, 0 }[(int)pieceList.TypeOfPieceInList]
+                            * pieceList.Count
+                            * (pieceList.IsWhitePieceList ? 1 : -1)
+                        )
+                    + board.GetAllPieceLists()
+                        .Sum(pieceList => pieceList.Sum(
+                            piece => new Func<int, int, int>[] {
+                                (x, y) => 0,
+                                (x, y) => y * 8,
+                                (x, y) => 20 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 70,
+                                (x, y) => 10 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 100,
+                                (x, y) => 0,
+                                (x, y) => 5 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 200,
+                                (x, y) => (int)Math.Pow(x * 2 - 7, 2) / 2 + (50 - y * 8) - 50
+                            } [(int)piece.PieceType]((piece.IsWhite ? 1 : -1) * piece.Square.Rank + (piece.IsWhite ? 1 : 7), (piece.IsWhite ? 1 : -1) * piece.Square.File + (piece.IsWhite ? 1 : 7))
+                        ))
+                    ) * (board.IsWhiteToMove ? 1 : -1), 
+                    Enumerable.Empty<(ulong, int, int)>()
+                )
+                : board.GetLegalMoves()
                     .OrderByDescending(move =>
                         + transpositionTable.Aggregate((0ul, 0, 0), (maybeTheLineWeWant, currentLine) => currentLine.Item1 == board.ZobristKey ? currentLine : maybeTheLineWeWant).Item3
                         - 100 * Convert.ToInt32(board.SquareIsAttackedByOpponent(move.TargetSquare))
@@ -61,7 +78,7 @@ public class MyBot : IChessBot
                         (score: alpha, transpositionTable: Enumerable.Empty<(ulong, int, int)>()),
                         (alpha_tt, move) =>
                             alpha_tt.score >= beta
-                                ? (beta, alpha_tt.transpositionTable)
+                                ? (beta, alpha_tt.transpositionTable.Append((board.ZobristKey, depth, beta)))
                                 : new[] {
                                     alpha_tt,
                                     new (int score, IEnumerable<(ulong, int, int)> transpositionTable)[] {
@@ -76,32 +93,6 @@ public class MyBot : IChessBot
                                     .MaxBy(score_tt => score_tt.score)
                                 
                     );
-
-    int Evaluate(Board board)
-    {
-        totalMovesSearched += 1;
-
-        return (
-            board.GetAllPieceLists()
-                .Sum(pieceList =>
-                    new[] { 0, 100, 320, 330, 500, 900, 0 }[(int)pieceList.TypeOfPieceInList]
-                    * pieceList.Count
-                    * (pieceList.IsWhitePieceList ? 1 : -1)
-                )
-            + board.GetAllPieceLists()
-                .Sum(pieceList => pieceList.Sum(
-                    piece => new Func<int, int, int>[] {
-                        (x, y) => 0,
-                        (x, y) => y * 8,
-                        (x, y) => 20 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 70,
-                        (x, y) => 10 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 100,
-                        (x, y) => 0,
-                        (x, y) => 5 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 200,
-                        (x, y) => (int)Math.Pow(x * 2 - 7, 2) / 2 + (50 - y * 8) - 50
-                    } [(int)piece.PieceType]((piece.IsWhite ? 1 : -1) * piece.Square.Rank + (piece.IsWhite ? 1 : 7), (piece.IsWhite ? 1 : -1) * piece.Square.File + (piece.IsWhite ? 1 : 7))
-                ))
-            ) * (board.IsWhiteToMove ? 1 : -1);
-    }
 }
 
 public static class Extensions

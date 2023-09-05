@@ -19,7 +19,7 @@ public class EvilBot : IChessBot
 
         movesMade += 1;
 
-        Console.WriteLine($"Total: {totalMovesSearched} \t Moves: {movesMade} \t Average: {totalMovesSearched / movesMade}");
+        // Console.WriteLine($"Total: {totalMovesSearched} \t Moves: {movesMade} \t Average: {totalMovesSearched / movesMade}");
         
         return move;
     }
