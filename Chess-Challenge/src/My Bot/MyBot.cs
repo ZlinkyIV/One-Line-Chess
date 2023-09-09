@@ -16,13 +16,13 @@ public class MyBot : IChessBot
                     previousEvaluationMove: Move.NullMove
                 ),
                 (previousEvaluation, depth) => 
-                    timer.MillisecondsElapsedThisTurn > 2000
+                    timer.MillisecondsElapsedThisTurn > 1000
                         ? previousEvaluation
                         : board.GetLegalMoves()
                             .Select(move => (
                                     move: move, 
                                     // score_tt: board.MakeMove(move, board => AlphaBeta(board, lastDepthMoveScore.transpositionTable, depth, () => false))
-                                    score_tt: board.MakeMove(move, board => AlphaBeta(board, previousEvaluation.transpositionTable, depth, () => timer.MillisecondsElapsedThisTurn > 2000))
+                                    score_tt: board.MakeMove(move, board => AlphaBeta(board, previousEvaluation.transpositionTable, depth, () => timer.MillisecondsElapsedThisTurn > 1000))
                                 ))
                             .Select(evaluation => (
                                 evaluation.move,
@@ -56,12 +56,12 @@ public class MyBot : IChessBot
                         .Sum(pieceList => pieceList.Sum(
                             piece => new Func<int, int, int>[] {
                                 (x, y) => 0,
-                                (x, y) => y * 8,
-                                (x, y) => 20 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 70,
-                                (x, y) => 10 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 100,
+                                (x, y) => y == 6 ? 50 : 0, // + Convert.ToInt32(x == 3 || x == 4) * new[] { 0, -20, 0, 20, 0, 0, 0, 0 }[y],
+                                (x, y) => 20 - (int)(Math.Pow(x * 2 - 7, 2) + Math.Pow(y * 2 - 7, 2)),
+                                (x, y) => 10 - (Math.Abs(x * 2 - 7) + Math.Abs(y * 2 - 7)),
                                 (x, y) => 0,
-                                (x, y) => 5 - (int)(Math.Pow(x * 2 - 7, 4) + Math.Pow(y * 2 - 7, 4)) / 200,
-                                (x, y) => (int)Math.Pow(x * 2 - 7, 2) / 2 + (50 - y * 8) - 50
+                                (x, y) => 0,
+                                (x, y) => (Math.Abs(x * 2 - 7) / 2 - y * 2) * 8
                             } [(int)piece.PieceType]((piece.IsWhite ? 1 : -1) * piece.Square.Rank + (piece.IsWhite ? 1 : 7), (piece.IsWhite ? 1 : -1) * piece.Square.File + (piece.IsWhite ? 1 : 7))
                         ))
                     ) * (board.IsWhiteToMove ? 1 : -1), 
