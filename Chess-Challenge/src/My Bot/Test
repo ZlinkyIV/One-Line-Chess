@@ -1,0 +1,5 @@
+Move Think(Board board, Timer timer) =>
+    Enumerable.Repeat(0, int.MaxValue)
+        .Aggregate(
+            
+        )
