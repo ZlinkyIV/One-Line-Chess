@@ -55,7 +55,7 @@ public class MyBot : IChessBot
                                                                                     (x, y) => 0,
                                                                                     (x, y) => (Math.Abs(x * 2 - 7) / 2 - y * 2) * 8
                                                                                 }[(int)piece.PieceType](piece.IsWhite ? piece.Square.File : 7 - piece.Square.File, piece.IsWhite ? piece.Square.Rank : 7 - piece.Square.Rank)
-                                                                            ))
+                                                                            ) * (pieceList.IsWhitePieceList ? 1 : -1))
                                                                         ) * (board.IsWhiteToMove ? 1 : -1)
                                                                         : int.MinValue,
                                                                     1
