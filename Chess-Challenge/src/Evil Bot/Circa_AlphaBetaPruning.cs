@@ -13,7 +13,7 @@ public class EvilBot : IChessBot
     {
         Move move = board.GetLegalMoves()
             .OrderByDescending(
-                move => board.MakeMove(move, board => -AlphaBeta(board, 3))
+                move => board.MakeMove(move, board => -AlphaBeta(board, 2))
             )
             .FirstOrDefault();
 

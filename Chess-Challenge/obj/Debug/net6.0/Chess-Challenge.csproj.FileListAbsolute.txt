@@ -57,4 +57,3 @@
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/obj/Debug/net6.0/Chess-Challenge.pdb
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/obj/Debug/net6.0/Chess-Challenge.genruntimeconfig.cache
 /Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/obj/Debug/net6.0/ref/Chess-Challenge.dll
-/Users/kaydon/Library/Mobile Documents/com~apple~CloudDocs/Desktop/C#/One-Line-Chess/Chess-Challenge/bin/Debug/net6.0/src/Evil Bot/EvilBot.cs
