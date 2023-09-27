@@ -12,7 +12,7 @@ public class MyBot : IChessBot
 
     // As you can see, the result is actually two statements (1.5 if you're kind)
     // because I forgot to realize that the search method I chose (traditional 
-    // Alpha-Beta pruning w/ Quiecence) needs recursion to work. By that time, 
+    // Alpha-Beta pruning w/ Quiescence) needs recursion to work. By that time, 
     // I didn't have time to start over with a non-recursive method, so I improvised!
 
     public Move Think(Board board, Timer timer) =>
@@ -37,8 +37,10 @@ public class MyBot : IChessBot
                                                             board.GetLegalMoves().Length == 0
                                                                 ? board.IsDraw() ? 0 : -1000000
                                                                 : Enumerable.Repeat(
-                                                                    depth <= 0                      // Don't calculate standpat/evaluation unless we have to
-                                                                        ? (board.GetAllPieceLists()
+                                                                    depth <= 0                      // Don't calculate Standpat/Evaluation unless we have to
+                                                                        ?
+                                                                        // EVALUATION //
+                                                                        (board.GetAllPieceLists()
                                                                             .Sum(pieceList =>
                                                                                 new[] { 0, 100, 320, 330, 500, 900, 0 }[(int)pieceList.TypeOfPieceInList]
                                                                                 * pieceList.Count
@@ -80,10 +82,12 @@ public class MyBot : IChessBot
                                                                         : int.MinValue,                     // Don't calculate standpat/evaluation unless we have to
                                                                     1
                                                                 )
+                                                                    // NEGAMAX + ALPHA-BETA PRUNING + QUIESCENCE //
                                                                     .Select(
                                                                         standPat => shouldCancel()
                                                                             ? standPat
                                                                             : board.GetLegalMoves(depth <= 0)
+                                                                                // MOVE ORDERING //
                                                                                 .OrderByDescending(
                                                                                     move =>
                                                                                         - Convert.ToInt32(board.SquareIsAttackedByOpponent(move.TargetSquare))
@@ -94,7 +98,7 @@ public class MyBot : IChessBot
                                                                                 .Aggregate(
                                                                                     Math.Max(alpha, standPat),
                                                                                     (alpha, move) =>
-                                                                                        alpha >= beta
+                                                                                        alpha >= beta   // If alpha, score, or stand pat >= beta, we prune
                                                                                             ? beta
                                                                                             : Math.Max(
                                                                                                 alpha,
